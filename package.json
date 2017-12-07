@@ -1,0 +1,29 @@
+{
+  "name": "webgl-experiments",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michealparks/webgl-experiments.git"
+  },
+  "author": "Micheal Parks",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michealparks/webgl-experiments/issues"
+  },
+  "homepage": "https://github.com/michealparks/webgl-experiments#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "stats.js": "^0.17.0",
+    "three": "^0.88.0"
+  },
+  "standard": {
+    "globals": [
+      "requestAnimationFrame"
+    ]
+  }
+}
