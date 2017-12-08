@@ -1,4 +1,4 @@
-import tick from '/frame.js'
+import tick from './frame.js'
 
 function frame (timestamp) {
   tick()

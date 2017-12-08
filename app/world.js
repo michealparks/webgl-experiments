@@ -1,5 +1,4 @@
 import {
-  Vector3,
   Scene,
   Mesh,
   PerspectiveCamera,
@@ -9,6 +8,8 @@ import {
   SphereBufferGeometry,
   MeshStandardMaterial
 } from '/three.module.js'
+
+import Vector3 from '/math/vector3.js'
 
 const scene = new Scene()
 const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000)

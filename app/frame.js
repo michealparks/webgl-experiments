@@ -1,10 +1,8 @@
-import {
-  Matrix4,
-  WebGLRenderer
-} from '/three.module.js'
+import {WebGLRenderer} from '/three.module.js'
 
-import {scene, camera, pointLight} from '/world.js'
-import Cube from '/objects/cube.js'
+import Matrix4 from './math/matrix4.js'
+import {scene, camera, pointLight} from './world.js'
+import Cube from './objects/cube.js'
 
 const renderer = new WebGLRenderer({
   canvas: window.canvas,
@@ -14,13 +12,13 @@ const renderer = new WebGLRenderer({
 
 const render = renderer.render.bind(renderer)
 
+renderer.alpha = true
 renderer.gammaInput = true
 renderer.gammaOutput = true
 renderer.shadowMap.enabled = true
 
-renderer.setSize(
-  window.innerWidth * window.devicePixelRatio,
-  window.innerHeight * window.devicePixelRatio)
+renderer.setPixelRatio(window.devicePixelRatio)
+renderer.setSize(window.innerWidth, window.innerHeight)
 
 renderer.setClearColor('#000', 1.0)
 
@@ -58,11 +56,7 @@ const tick = (timestamp) => {
 
   camera.applyMatrix(RotateMatrix)
 
-  console.log(size)
-
   for (let i = 0; i < 27; i += 1) {
-    // cubes[i].applyMatrix(RotateMatrix)
-
     cubeTranslation(i, size)
     cubes[i].applyMatrix(translateMatrix)
   }
