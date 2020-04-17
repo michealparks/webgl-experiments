@@ -1,0 +1,147 @@
+<style>
+body { margin: 0 }
+</style>
+
+<script type="module">
+import {
+  Matrix4,
+  Vector3,
+  WebGLRenderer,
+  Scene,
+  Mesh,
+  PerspectiveCamera,
+  PointLight,
+  AmbientLight,
+  BoxBufferGeometry,
+  PlaneBufferGeometry,
+  SphereBufferGeometry,
+  MeshStandardMaterial
+} from './three.module.js'
+
+const scene = new Scene()
+const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000)
+
+const focus = new Vector3(0, 1, 700)
+camera.position.set(focus.x, focus.y, focus.z)
+camera.lookAt(focus)
+
+const pointLight = new PointLight(0xffffff, 100, 600, 2)
+pointLight.position.set(0, 400, 0)
+pointLight.castShadow = true
+scene.add(pointLight)
+
+const pointLight2 = new PointLight(0xffffff, 50, 500, 2)
+pointLight2.position.set(0, 300, 400)
+pointLight2.castShadow = true
+scene.add(pointLight2)
+
+const pointLight3 = new PointLight(0xffffff, 10, 300, 2)
+pointLight3.position.set(200, 100, 200)
+pointLight3.castShadow = true
+scene.add(pointLight3)
+
+const ambientLight = new AmbientLight(0x404040, 0.5)
+scene.add(ambientLight)
+
+const geometry = new SphereBufferGeometry(25, 25, 25)
+const material = new MeshStandardMaterial({color: '#fff'})
+const sphere = new Mesh(geometry, material)
+sphere.position.set(200, -175, 200)
+sphere.receiveShadow = true
+scene.add(sphere)
+
+const planeGeometry = new PlaneBufferGeometry(700, 700)
+const planeMaterial = new MeshStandardMaterial({color: '#ddd'})
+const plane = new Mesh(planeGeometry, planeMaterial)
+plane.position.set(0, -200, 0)
+plane.rotation.set(-1, 0, 0)
+plane.receiveShadow = true
+scene.add(plane)
+
+const renderer = new WebGLRenderer({
+  canvas: window.canvas,
+  antialias: true,
+  preserveDrawingBuffer: true
+})
+
+const render = renderer.render.bind(renderer)
+
+renderer.alpha = true
+renderer.gammaInput = true
+renderer.gammaOutput = true
+renderer.shadowMap.enabled = true
+
+renderer.setPixelRatio(window.devicePixelRatio)
+renderer.setSize(window.innerWidth, window.innerHeight)
+
+renderer.setClearColor('#000', 1.0)
+
+const rotateFactor = 0.005
+
+const RotateMatrix = new Matrix4()
+  .makeRotationX(rotateFactor)
+  .multiply(new Matrix4().makeRotationY(rotateFactor))
+  .multiply(new Matrix4().makeRotationZ(rotateFactor))
+
+const translateMatrix = new Matrix4()
+
+const createCube = (l, w, h, color, cast, recieve) => {
+  const geometry = new BoxBufferGeometry(l, w, h)
+  const material = new MeshStandardMaterial({color})
+  const cube = new Mesh(geometry, material)
+
+  cube.castShadow = cast || false
+  cube.receiveShadow = recieve || false
+
+  return cube
+}
+
+const cubeTranslation = (i, n) => {
+  const x = ((i % 3) * n) - n
+  const y = (((i % 9) / 3 | 0) * n) - n
+  const z = ((i / 9 | 0) * n) - n
+  translateMatrix.makeTranslation(x, y, z)
+}
+
+const cubes = []
+let i = 0
+
+while (i < 27) {
+  cubes.push(createCube(50, 50, 50, '#333', true, true))
+
+  cubeTranslation(i, 50)
+  cubes[i].applyMatrix4(translateMatrix)
+  scene.add(cubes[i])
+
+  i = i + 1
+}
+
+let x = 0
+const tick = (timestamp) => {
+  render(scene, camera)
+
+  x += 0.075 * Math.PI
+  const size = 2.5 * Math.sin(x)
+
+  camera.applyMatrix4(RotateMatrix)
+
+  let i = 0;
+  while (i < 27) {
+    cubeTranslation(i, size)
+    cubes[i].applyMatrix4(translateMatrix)
+
+    i += 1
+  }
+}
+
+function frame (timestamp) {
+  tick()
+  requestAnimationFrame(frame)
+}
+
+requestAnimationFrame(frame)
+</script>
+
+<canvas id='canvas'></canvas>
+
+<script type='module' src='index.js'></script>
