@@ -2,6 +2,14 @@
 body { margin: 0 }
 </style>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js"
+  }
+}
+</script>
+
 <script type="module">
 import {
   Matrix4,
@@ -16,7 +24,11 @@ import {
   PlaneBufferGeometry,
   SphereBufferGeometry,
   MeshStandardMaterial
-} from './three.module.js'
+} from 'three'
+
+import {
+  weglRenderer
+} from './three/utils/webglRenderer.js'
 
 const scene = new Scene()
 const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000)
@@ -24,6 +36,8 @@ const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight,
 const focus = new Vector3(0, 1, 700)
 camera.position.set(focus.x, focus.y, focus.z)
 camera.lookAt(focus)
+
+const renderer = weglRenderer()
 
 const pointLight = new PointLight(0xffffff, 100, 600, 2)
 pointLight.position.set(0, 400, 0)
@@ -57,24 +71,6 @@ plane.position.set(0, -200, 0)
 plane.rotation.set(-1, 0, 0)
 plane.receiveShadow = true
 scene.add(plane)
-
-const renderer = new WebGLRenderer({
-  canvas: window.canvas,
-  antialias: true,
-  preserveDrawingBuffer: true
-})
-
-const render = renderer.render.bind(renderer)
-
-renderer.alpha = true
-renderer.gammaInput = true
-renderer.gammaOutput = true
-renderer.shadowMap.enabled = true
-
-renderer.setPixelRatio(window.devicePixelRatio)
-renderer.setSize(window.innerWidth, window.innerHeight)
-
-renderer.setClearColor('#000', 1.0)
 
 const rotateFactor = 0.005
 
@@ -118,7 +114,7 @@ while (i < 27) {
 
 let x = 0
 const tick = (timestamp) => {
-  render(scene, camera)
+  renderer.render(scene, camera)
 
   x += 0.075 * Math.PI
   const size = 2.5 * Math.sin(x)
@@ -143,5 +139,3 @@ requestAnimationFrame(frame)
 </script>
 
 <canvas id='canvas'></canvas>
-
-<script type='module' src='index.js'></script>
