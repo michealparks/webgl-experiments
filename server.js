@@ -1,14 +1,9 @@
 const express = require('express')
 const app = express()
 
-const dirs = [
-  'three',
-  'node_modules/three/build'
-]
-
-for (const dir of dirs) {
-  app.use(`/${dir}`, express.static(`${__dirname}/${dir}`))
-}
+app.use(express.static(`${__dirname}/node_modules/three`))
+app.use(express.static(`${__dirname}/three`))
+app.use('/assets', express.static(`${__dirname}/assets`))
 
 app.listen(5000)
 console.log('listening on port 5000')

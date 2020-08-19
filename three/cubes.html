@@ -1,72 +1,52 @@
-<style>
-body { margin: 0 }
-</style>
-
-<script type="importmap">
-{
-  "imports": {
-    "three": "/node_modules/three/build/three.module.js"
-  }
-}
+<script type="module">
+import * as THREE from './three.module.js'
+window.THREE = THREE
 </script>
 
 <script type="module">
-import {
-  Matrix4,
-  Vector3,
-  WebGLRenderer,
-  Scene,
-  Mesh,
-  PerspectiveCamera,
-  PointLight,
-  AmbientLight,
-  BoxBufferGeometry,
-  PlaneBufferGeometry,
-  SphereBufferGeometry,
-  MeshStandardMaterial
-} from 'three'
+import { createRenderer } from './utils/renderer.js'
+import { createCamera } from './utils/camera.js'
+import { createScene } from './utils/scene.js'
 
-import {
-  weglRenderer
-} from './three/utils/webglRenderer.js'
+const renderer = createRenderer()
+document.body.appendChild(renderer.domElement)
 
-const scene = new Scene()
-const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000)
+const camera = createCamera()
+const scene = createScene()
+scene.add(camera)
 
-const focus = new Vector3(0, 1, 700)
+const focus = new THREE.Vector3(0, 1, 700)
 camera.position.set(focus.x, focus.y, focus.z)
 camera.lookAt(focus)
 
-const renderer = weglRenderer()
-
-const pointLight = new PointLight(0xffffff, 100, 600, 2)
+const pointLight = new THREE.PointLight(0xffffff, 100, 600, 2)
 pointLight.position.set(0, 400, 0)
 pointLight.castShadow = true
 scene.add(pointLight)
 
-const pointLight2 = new PointLight(0xffffff, 50, 500, 2)
+const pointLight2 = new THREE.PointLight(0xffffff, 50, 500, 2)
 pointLight2.position.set(0, 300, 400)
 pointLight2.castShadow = true
 scene.add(pointLight2)
 
-const pointLight3 = new PointLight(0xffffff, 10, 300, 2)
+const pointLight3 = new THREE.PointLight(0xffffff, 10, 300, 2)
 pointLight3.position.set(200, 100, 200)
 pointLight3.castShadow = true
 scene.add(pointLight3)
 
-const ambientLight = new AmbientLight(0x404040, 0.5)
+const ambientLight = new THREE.AmbientLight(0x404040, 0.5)
 scene.add(ambientLight)
 
-const geometry = new SphereBufferGeometry(25, 25, 25)
-const material = new MeshStandardMaterial({color: '#fff'})
-const sphere = new Mesh(geometry, material)
+const geometry = new THREE.SphereBufferGeometry(25, 25, 25)
+const material = new THREE.MeshStandardMaterial({color: '#fff'})
+const sphere = new THREE.Mesh(geometry, material)
 sphere.position.set(200, -175, 200)
 sphere.receiveShadow = true
 scene.add(sphere)
 
-const planeGeometry = new PlaneBufferGeometry(700, 700)
-const planeMaterial = new MeshStandardMaterial({color: '#ddd'})
-const plane = new Mesh(planeGeometry, planeMaterial)
+const planeGeometry = new THREE.PlaneBufferGeometry(700, 700)
+const planeMaterial = new THREE.MeshStandardMaterial({color: '#ddd'})
+const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 plane.position.set(0, -200, 0)
 plane.rotation.set(-1, 0, 0)
 plane.receiveShadow = true
@@ -74,17 +54,17 @@ scene.add(plane)
 
 const rotateFactor = 0.005
 
-const RotateMatrix = new Matrix4()
+const RotateMatrix = new THREE.Matrix4()
   .makeRotationX(rotateFactor)
-  .multiply(new Matrix4().makeRotationY(rotateFactor))
-  .multiply(new Matrix4().makeRotationZ(rotateFactor))
+  .multiply(new THREE.Matrix4().makeRotationY(rotateFactor))
+  .multiply(new THREE.Matrix4().makeRotationZ(rotateFactor))
 
-const translateMatrix = new Matrix4()
+const translateMatrix = new THREE.Matrix4()
 
 const createCube = (l, w, h, color, cast, recieve) => {
-  const geometry = new BoxBufferGeometry(l, w, h)
-  const material = new MeshStandardMaterial({color})
-  const cube = new Mesh(geometry, material)
+  const geometry = new THREE.BoxBufferGeometry(l, w, h)
+  const material = new THREE.MeshStandardMaterial({color})
+  const cube = new THREE.Mesh(geometry, material)
 
   cube.castShadow = cast || false
   cube.receiveShadow = recieve || false
@@ -99,10 +79,11 @@ const cubeTranslation = (i, n) => {
   translateMatrix.makeTranslation(x, y, z)
 }
 
+const numCubes = 27
 const cubes = []
 let i = 0
 
-while (i < 27) {
+while (i < numCubes) {
   cubes.push(createCube(50, 50, 50, '#333', true, true))
 
   cubeTranslation(i, 50)
@@ -113,7 +94,9 @@ while (i < 27) {
 }
 
 let x = 0
-const tick = (timestamp) => {
+
+function frame (timestamp) {
+  renderer.handleResize(renderer, camera)
   renderer.render(scene, camera)
 
   x += 0.075 * Math.PI
@@ -122,20 +105,15 @@ const tick = (timestamp) => {
   camera.applyMatrix4(RotateMatrix)
 
   let i = 0;
-  while (i < 27) {
+  while (i < numCubes) {
     cubeTranslation(i, size)
     cubes[i].applyMatrix4(translateMatrix)
 
     i += 1
   }
-}
 
-function frame (timestamp) {
-  tick()
   requestAnimationFrame(frame)
 }
 
 requestAnimationFrame(frame)
 </script>
-
-<canvas id='canvas'></canvas>

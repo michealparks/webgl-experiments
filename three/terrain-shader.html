@@ -1,0 +1,95 @@
+<script type="module">
+import * as THREE from './build/three.module.js'
+window.THREE = THREE
+</script>  
+
+<script type="module">
+import { OrbitControls } from './examples/jsm/controls/OrbitControls.js';
+import { math } from './utils/math.js'
+import { fetchBlob } from './utils/fetch.js'
+import { createRenderer } from './utils/renderer.js'
+import { createCamera } from './utils/camera.js'
+import { createScene } from './utils/scene.js'
+
+const renderer = createRenderer()
+document.body.appendChild(renderer.domElement)
+
+const camera = createCamera()
+const scene = createScene()
+scene.add(camera)
+camera.position.set(10, 10, 10)
+camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+const light = new THREE.DirectionalLight( 0xffffff, 0.7 );
+light.position.set( 1, 200, 0 );
+scene.add( light );
+
+const light2 = new THREE.DirectionalLight( 0xff5566, 0.4 );
+light2.position.set( -3, 200, 0 )
+scene.add( light2 );
+
+scene.add(new THREE.AmbientLight(0xffffff,0.3))
+
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true
+controls.dampingFactor = 0.05
+controls.screenSpacePanning = false
+controls.minDistance = 100
+controls.maxDistance = 500
+controls.maxPolarAngle = Math.PI / 2
+
+const main = async () => {
+  const blob = await fetchBlob('./assets/heightmap_1.png')
+  const bitmap = await createImageBitmap(blob)
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(bitmap, 0, 0)
+  const heightmap = ctx.getImageData(0, 0, bitmap.width, bitmap.height)
+  const w = heightmap.width
+  const h = heightmap.height
+  const s = 2
+
+  const geo2 = new THREE.PlaneBufferGeometry(10, 10, 2, 2)
+  const pos = geo2.getAttribute('position')
+
+  const geo = new THREE.PlaneBufferGeometry(w, h, w, h + 1)
+  const position = geo.getAttribute('position')
+  const l = position.array.length
+
+  let i = 0
+  let j = 0
+
+  while (i < l) {
+    const val = math.map(heightmap.data[j], 0, 255, -50, 50)
+    position.array[i + 2] = val
+    i += 3
+    j += 4
+  }
+
+  geo.colorsNeedUpdate = true
+  geo.verticesNeedUpdate = true
+  //required for flat shading
+  // geo.computeFlatVertexNormals()
+  const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({
+      wireframe:true,
+      // vertexColors: THREE.VertexColors,
+      //required for flat shading
+  }))
+  mesh.position.y = -0
+  mesh.position.z = -20
+  //tilt slightly so we can see it better
+  mesh.rotation.x = math.degToRad(-90)
+
+  scene.add(mesh)
+  requestAnimationFrame(frame)
+}
+
+main()
+
+const frame = () => {
+  renderer.render(scene, camera)
+
+  requestAnimationFrame(frame)
+}
+
+</script>
