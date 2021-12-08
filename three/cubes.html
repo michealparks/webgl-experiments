@@ -1,5 +1,5 @@
 <script type="module">
-import * as THREE from './three.module.js'
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@v0.119.0/build/three.module.js'
 window.THREE = THREE
 </script>
 
@@ -36,21 +36,6 @@ scene.add(pointLight3)
 
 const ambientLight = new THREE.AmbientLight(0x404040, 0.5)
 scene.add(ambientLight)
-
-const geometry = new THREE.SphereBufferGeometry(25, 25, 25)
-const material = new THREE.MeshStandardMaterial({color: '#fff'})
-const sphere = new THREE.Mesh(geometry, material)
-sphere.position.set(200, -175, 200)
-sphere.receiveShadow = true
-scene.add(sphere)
-
-const planeGeometry = new THREE.PlaneBufferGeometry(700, 700)
-const planeMaterial = new THREE.MeshStandardMaterial({color: '#ddd'})
-const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-plane.position.set(0, -200, 0)
-plane.rotation.set(-1, 0, 0)
-plane.receiveShadow = true
-scene.add(plane)
 
 const rotateFactor = 0.005
 
@@ -96,7 +81,7 @@ while (i < numCubes) {
 let x = 0
 
 function frame (timestamp) {
-  renderer.handleResize(renderer, camera)
+  renderer.handleResize(camera)
   renderer.render(scene, camera)
 
   x += 0.075 * Math.PI
